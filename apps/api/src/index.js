@@ -11,11 +11,8 @@ function link(from, to) {
 
 function trace(nodeId, path = []) {
   path.push(nodeId);
-
   const parents = edges.filter((e) => e.to === nodeId).map((e) => e.from);
-
   if (parents.length === 0) return path;
-
   return trace(parents[0], path);
 }
 
@@ -34,7 +31,6 @@ createNode("db_delete", "action", "DELETE", "FROM users");
 link("worker", "db_delete");
 
 const result = trace("db_delete");
-
 console.log(`\n 🔎 Root Cause Trace: \n`);
 
 result.reverse().forEach((id) => {
