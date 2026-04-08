@@ -1,39 +1,34 @@
-const nodes = {};
-const edges = [];
+const http = require("node:http");
+const { createGraphStore } = require("../../../packages/graph-store/src");
+const { createRootCauseEngine } = require("../../../packages/root-cause-engine/src");
+const { handleIngestRoutes } = require("./routes/ingest");
+const { handleGraphRoutes } = require("./routes/graph");
+const { handleIncidentRoutes } = require("./routes/incidents");
 
-function createNode(id, type, data) {
-  nodes[id] = { id, type, data };
-}
+const PORT = process.env.PORT || 3001;
+const graphStore = createGraphStore();
+const rootCauseEngine = createRootCauseEngine({ graphStore });
 
-function link(from, to) {
-  edges.push({ from, to });
-}
+const server = http.createServer(async (req, res) => {
+  try {
+    if (req.url === "/health" && req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ status: "ok", service: "agentguard-api-v1" }));
+      return;
+    }
 
-function trace(nodeId, path = []) {
-  path.push(nodeId);
-  const parents = edges.filter((e) => e.to === nodeId).map((e) => e.from);
-  if (parents.length === 0) return path;
-  return trace(parents[0], path);
-}
+    if (await handleIngestRoutes(req, res, { graphStore })) return;
+    if (await handleGraphRoutes(req, res, { graphStore })) return;
+    if (await handleIncidentRoutes(req, res, { rootCauseEngine })) return;
 
-createNode("api_fail", "event", "User API returned empty");
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Not Found" }));
+  } catch (error) {
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: error.message || "Internal Server Error" }));
+  }
+});
 
-createNode("tool_output", "data", "[] (no users)");
-link("api_fail", "tool_output");
-
-createNode("llm_decision", "step", "All users inactive");
-link("tool_output", "llm_decision");
-
-createNode("worker", "step", "Deleting users");
-link("llm_decision", "worker");
-
-createNode("db_delete", "action", "DELETE", "FROM users");
-link("worker", "db_delete");
-
-const result = trace("db_delete");
-console.log(`\n 🔎 Root Cause Trace: \n`);
-
-result.reverse().forEach((id) => {
-  const node = nodes[id];
-  console.log(`-> [${node.type}] ${node.data}`);
+server.listen(PORT, () => {
+  console.log(`AgentGuard API listening on http://localhost:${PORT}`);
 });
