@@ -7,7 +7,7 @@
 
 ---
 
-# Day 1
+## Day 1
 
 ## What I Built
 
