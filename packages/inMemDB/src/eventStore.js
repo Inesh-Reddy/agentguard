@@ -6,6 +6,8 @@ export const eventStore = {
   },
 
   getByTraceId(traceId) {
-    return this.events.filter((e) => e.traceId === traceId);
+    return this.events
+      .filter((e) => e.traceId === traceId)
+      .sort((a, b) => a.timestamp - b.timestamp);
   },
 };

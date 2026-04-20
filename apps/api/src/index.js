@@ -3,59 +3,60 @@ import { Logger } from "./logger/logger.js";
 
 const logger = new Logger();
 
+const TraceId = `traceId-event-${crypto.randomUUID()}`;
 const event1 = {
   eventId: crypto.randomUUID(),
   timestamp: Date.now(),
-  traceId: "t1",
-  spanId: "s1",
+  traceId: TraceId,
+  spanId: `spanId-event1-${crypto.randomUUID()}`,
   parentSpanId: null,
   stepType: "llm_call",
-  stepName: "generate_response",
+  stepName: "retrieve_docs",
   status: "success",
   input: { user: "bob" },
-  output: { user: "bill" },
+  output: { docs: ["doc1", "doc2"] },
   context: {},
   error: null,
 };
 const event2 = {
   eventId: crypto.randomUUID(),
   timestamp: Date.now(),
-  traceId: "t1",
-  spanId: "s1",
+  traceId: TraceId,
+  spanId: `spanId-event2-${crypto.randomUUID()}`,
   parentSpanId: null,
   stepType: "llm_call",
-  stepName: "generate_response",
+  stepName: "store_memory",
   status: "success",
-  input: { user: "bob" },
-  output: { user: "bill" },
+  input: { docs: ["doc1", "doc2"] },
+  output: { memoryStored: true },
   context: {},
   error: null,
 };
 const event3 = {
   eventId: crypto.randomUUID(),
   timestamp: Date.now(),
-  traceId: "t1",
-  spanId: "s1",
+  traceId: TraceId,
+  spanId: `spanId-event3-${crypto.randomUUID()}`,
   parentSpanId: null,
   stepType: "llm_call",
-  stepName: "generate_response",
+  stepName: "tool_call",
   status: "success",
-  input: { user: "bob" },
-  output: { user: "bill" },
+  input: { userQuery: "Where are docs?", docs: ["doc1", "doc2"] },
+  output: {},
   context: {},
   error: null,
 };
 const event4 = {
   eventId: crypto.randomUUID(),
   timestamp: Date.now(),
-  traceId: "t1",
-  spanId: "s1",
+  traceId: TraceId,
+  spanId: `spanId-event4-${crypto.randomUUID()}`,
   parentSpanId: null,
   stepType: "llm_call",
-  stepName: "generate_response",
+  stepName: "generate_answer",
   status: "success",
-  input: { user: "bob" },
-  output: { user: "bill" },
+  input: { userQuery: "Where are docs?" },
+  output: {},
   context: {},
   error: null,
 };
@@ -65,4 +66,7 @@ logger.emit(event2);
 logger.emit(event3);
 logger.emit(event4);
 
-console.log(logger.getAll());
+// console.log(logger.getAll());
+console.log("traceId: ");
+
+console.log(eventStore.getByTraceId(TraceId));

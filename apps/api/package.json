@@ -4,10 +4,11 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node src/index.js"
+    "dev": "nodemon src/index.js"
   },
   "dependencies": {
-    "@repo/inmemdb": "workspace:*"
+    "@repo/inmemdb": "workspace:*",
+    "nodemon": "^3.1.14"
   },
   "keywords": [],
   "author": "",
