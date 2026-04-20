@@ -2,19 +2,56 @@
 
 ## Goal
 
-Build a system to monitor, debug, and improve AI agents.
+Build a reliability engine for AI agents that explains failures across multi-step executions.
+
+## Core Idea
+
+Model agent executions as graphs and track:
+
+- Data lineage
+- Context propagation
+- Step transitions
+
+Then detect failures and generate structured root-cause explanations (RCA).
 
 ## Current Stage
 
-Day 0 — Setup
+Day 1 — Event Ingestion + Basic Logging
 
-## Plan
+## What is Built
 
-- Start with logging system
-- Build task execution engine
-- Add analysis layer later
+- Structured event schema (traceId, spanId, parentSpanId, etc.)
+- Logger abstraction (emit, getAll)
+- In-memory event store
+- Basic event ingestion working
+
+## What is NOT Built Yet
+
+- Execution graph
+- Context diff engine
+- Failure classification
+- RCA engine
+
+## Mental Model
+
+Failure is NOT at a step.
+
+Failure happens in:
+
+> transition between steps
+
+System focus:
+
+Event → Transition → Diff → Failure → RCA
 
 ## Tech Decisions
 
-- JS first → TS during refactor
-- No external libs initially
+- JavaScript first → TypeScript during refactor phases
+- No external libraries (build from first principles)
+- In-memory storage initially
+- Turborepo for modular growth
+
+## Constraints
+
+- No premature optimization
+- No infra (DB, Kafka, etc.) until needed
